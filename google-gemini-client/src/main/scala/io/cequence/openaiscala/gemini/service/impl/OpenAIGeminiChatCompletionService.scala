@@ -2,53 +2,33 @@ package io.cequence.openaiscala.gemini.service.impl
 
 import akka.NotUsed
 import akka.stream.scaladsl.Source
+
 import io.cequence.openaiscala.OpenAIScalaClientException
 import io.cequence.openaiscala.domain.BaseMessage.getTextContent
-import io.cequence.openaiscala.domain.response.{
-  ChatCompletionChoiceChunkInfo,
-  ChatCompletionChoiceInfo,
-  ChatCompletionChunkResponse,
-  ChatCompletionResponse,
-  ChunkMessageSpec,
-  PromptTokensDetails,
-  UsageInfo => OpenAIUsageInfo
-}
+import io.cequence.openaiscala.domain.response.{ChatCompletionChoiceChunkInfo, ChatCompletionChoiceInfo, ChatCompletionChunkResponse, ChatCompletionResponse, ChunkMessageSpec, PromptTokensDetails, UsageInfo => OpenAIUsageInfo}
 import io.cequence.openaiscala.domain.settings.CreateChatCompletionSettings
-import io.cequence.openaiscala.domain.{
-  AssistantMessage,
-  BaseMessage,
-  DeveloperMessage,
-  ImageURLContent,
-  SystemMessage,
-  TextContent,
-  UserMessage,
-  UserSeqMessage,
-  ChatRole => OpenAIChatRole
-}
+import io.cequence.openaiscala.domain.{AssistantMessage, BaseMessage, DeveloperMessage, ImageURLContent, SystemMessage, TextContent, UserMessage, UserSeqMessage, ChatRole => OpenAIChatRole}
 import io.cequence.openaiscala.gemini.domain.ChatRole.User
 import io.cequence.openaiscala.gemini.domain.Part.{FileData, InlineData}
 import io.cequence.openaiscala.gemini.domain.response.{GenerateContentResponse, UsageMetadata}
 import io.cequence.openaiscala.gemini.domain.settings.CreateChatCompletionSettingsOps._
-import io.cequence.openaiscala.gemini.domain.settings.{
-  GenerateContentSettings,
-  GenerationConfig
-}
+import io.cequence.openaiscala.gemini.domain.settings.{GenerateContentSettings, GenerationConfig}
 import io.cequence.openaiscala.gemini.domain.{CachedContent, ChatRole, Content, Part}
 import io.cequence.openaiscala.gemini.service.GeminiService
-import io.cequence.openaiscala.service.{
-  OpenAIChatCompletionService,
-  OpenAIChatCompletionStreamedServiceExtra
-}
-
+import io.cequence.openaiscala.service.{OpenAIChatCompletionService, OpenAIChatCompletionStreamedServiceExtra}
 import scala.concurrent.{ExecutionContext, Future}
+
 import io.cequence.openaiscala.domain.settings.ChatCompletionResponseFormatType
 import io.cequence.openaiscala.domain.JsonSchema
 import io.cequence.openaiscala.gemini.domain.Schema
 import com.typesafe.scalalogging.Logger
+
 import io.cequence.openaiscala.gemini.domain.SchemaType
 import org.slf4j.LoggerFactory
-
 import scala.collection.immutable.Traversable
+
+import io.cequence.openaiscala.gemini.domain.Tool
+import io.cequence.openaiscala.gemini.domain.settings.ThinkingConfig
 
 private[service] class OpenAIGeminiChatCompletionService(
   underlying: GeminiService
@@ -233,12 +213,22 @@ private[service] class OpenAIGeminiChatCompletionService(
       } else
         None
 
+    val thinkingConfig = settings.extra_params.get("thinking_budget").flatMap {
+      case budget: Int => Some(ThinkingConfig(budget))
+      case _           => None
+    }
+
+    val search: Seq[Tool] = settings.extra_params.get("google_search").toSeq.flatMap {
+      case search: Boolean if search => Tool.GoogleSearch :: Nil
+      case _                         => Nil
+    }
+
     // check for unsupported fields
     checkNotSupported(settings)
 
     GenerateContentSettings(
       model = settings.model,
-      tools = None, // TODO
+      tools = Some(search).filter(_.nonEmpty), // TODO other tools
       toolConfig = None, // TODO
       safetySettings = None,
       systemInstruction = systemMessage.map(toGeminiContent),
@@ -259,7 +249,8 @@ private[service] class OpenAIGeminiChatCompletionService(
           responseLogprobs = settings.logprobs,
           logprobs = settings.top_logprobs,
           enableEnhancedCivicAnswers = None,
-          speechConfig = None
+          speechConfig = None,
+          thinkingConfig = thinkingConfig
         )
       ),
       cachedContent = None

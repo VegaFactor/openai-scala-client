@@ -219,6 +219,7 @@ trait JsonFormats {
     Format(speechConfigReads, speechConfigWrites)
 
   implicit val modalityFormat: Format[Modality] = enumFormat(Modality.values: _*)
+  implicit val thinkingFormat: Format[ThinkingConfig] = Json.format[ThinkingConfig]
   implicit val generationConfigFormat: Format[GenerationConfig] = Json.format[GenerationConfig]
 
   // Grounding Attribution and Metadata

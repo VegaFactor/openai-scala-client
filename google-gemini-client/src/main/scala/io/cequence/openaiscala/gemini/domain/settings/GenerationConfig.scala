@@ -18,7 +18,8 @@ case class GenerationConfig(
   responseLogprobs: Option[Boolean] = None,
   logprobs: Option[Int] = None,
   enableEnhancedCivicAnswers: Option[Boolean] = None,
-  speechConfig: Option[SpeechConfig] = None
+  speechConfig: Option[SpeechConfig] = None,
+  thinkingConfig: Option[ThinkingConfig] = None
 )
 
 sealed trait SpeechConfig
@@ -30,3 +31,7 @@ object SpeechConfig {
 }
 
 case class PrebuiltVoiceConfig(voiceName: String)
+
+final case class ThinkingConfig(
+    thinkingBudget: Int // -1: dynamic, 0: no thinking
+)
