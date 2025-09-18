@@ -70,7 +70,7 @@ private[service] class GeminiServiceImpl(
         EndPoint.streamGenerateContent(settings.model).toString(),
         "POST",
         bodyParams = stringParams,
-        maxFrameLength = Some(20000),
+        maxFrameLength = Some(100_000),
         framingDelimiter = "\n,\r\n",
         stripPrefix = Some("["),
         stripSuffix = Some("]")
