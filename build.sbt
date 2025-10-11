@@ -1,4 +1,5 @@
 import sbt.Keys.test
+import sbtghpackages.GitHubPackagesPlugin.autoImport.*
 
 // Supported versions
 val scala212 = "2.12.18"
@@ -7,7 +8,7 @@ val scala3 = "3.2.2"
 
 ThisBuild / organization := "io.cequence"
 ThisBuild / scalaVersion := scala213
-ThisBuild / version := "1.2.0.RC.1"
+ThisBuild / version := "1.2.0-6"
 ThisBuild / isSnapshot := false
 
 lazy val commonSettings = Seq(
@@ -15,7 +16,13 @@ lazy val commonSettings = Seq(
   libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.16" % Test,
   libraryDependencies += "org.scalatestplus" %% "mockito-4-11" % "3.2.16.0" % Test,
   libraryDependencies ++= extraTestDependencies(scalaVersion.value),
-  crossScalaVersions := List(scala212, scala213, scala3)
+  crossScalaVersions := List(scala212, scala213, scala3),
+  resolvers ++= Seq(
+    Resolver.githubPackages("VegaFactor")
+  ),
+  githubOwner       := "VegaFactor",
+  githubRepository  := "openai-scala-client",
+  githubTokenSource := TokenSource.Environment("GITHUB_TOKEN") || TokenSource.GitConfig("github.token")
 )
 
 def extraTestDependencies(scalaVersion: String) =
