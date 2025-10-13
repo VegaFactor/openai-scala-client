@@ -63,7 +63,8 @@ private[service] class SonarServiceImpl(
         EndPoint.chatCompletion.toString(),
         "POST",
         bodyParams = stringParams,
-        framingDelimiter = "\r\n\r\n"
+        framingDelimiter = "\r\n\r\n",
+        maxFrameLength = Some(100_000)
       )
       .map { json =>
         (json \ "error").toOption.map { error =>
