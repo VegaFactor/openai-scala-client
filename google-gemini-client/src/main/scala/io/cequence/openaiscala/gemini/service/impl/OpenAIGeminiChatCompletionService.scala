@@ -387,7 +387,8 @@ private[service] class OpenAIGeminiChatCompletionService(
           finish_reason = candidate.finishReason.map(_.toString)
         )
       },
-      usage = Some(toOpenAIUsage(response.usageMetadata))
+      usage = Some(toOpenAIUsage(response.usageMetadata)),
+      originalResponse = Some(response)
     )
 
   private def toOpenAIAssistantMessage(

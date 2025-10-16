@@ -473,8 +473,35 @@ object JsonFormats {
   implicit lazy val chatCompletionChoiceChunkInfoFormat
     : Format[ChatCompletionChoiceChunkInfo] =
     Json.format[ChatCompletionChoiceChunkInfo]
+
   implicit lazy val chatCompletionChunkResponseFormat: Format[ChatCompletionChunkResponse] =
-    Json.format[ChatCompletionChunkResponse]
+    (
+      (__ \ "id").format[String] and
+        (__ \ "created").format[ju.Date] and
+        (__ \ "model").format[String] and
+        (__ \ "system_fingerprint").formatNullable[String] and
+        (__ \ "choices").format[Seq[ChatCompletionChoiceChunkInfo]] and
+        (__ \ "usage").formatNullable[UsageInfo]
+    )(
+      (
+        id,
+        created,
+        model,
+        system_fingerprint,
+        choices,
+        usage
+      ) =>
+        ChatCompletionChunkResponse(id, created, model, system_fingerprint, choices, usage, None),
+      (x: ChatCompletionChunkResponse) =>
+        (
+          x.id,
+          x.created,
+          x.model,
+          x.system_fingerprint,
+          x.choices,
+          x.usage
+        )
+    )
 
   implicit lazy val textEditChoiceInfoFormat: Format[TextEditChoiceInfo] =
     Json.format[TextEditChoiceInfo]
