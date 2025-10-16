@@ -154,7 +154,8 @@ case class ChatCompletionChunkResponse(
   system_fingerprint: Option[String],
   choices: Seq[ChatCompletionChoiceChunkInfo],
   // TODO: seems to be provided at the end when some flag is set
-  usage: Option[UsageInfo]
+  usage: Option[UsageInfo],
+  originalResponse: Option[Any] = None
 ) {
   def contentHead: Option[String] = choices.headOption
     .map(_.delta.content)
