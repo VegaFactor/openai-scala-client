@@ -34,6 +34,11 @@ object Tool {
   case object GoogleSearch extends Tool {
     override val prefix: ToolPrefix = ToolPrefix.googleSearch
   }
+
+  // no fields
+  case object UrlContext extends Tool {
+    override val prefix: ToolPrefix = ToolPrefix.urlContext
+  }
 }
 
 sealed trait ToolPrefix extends EnumValue
@@ -43,12 +48,14 @@ object ToolPrefix {
   case object googleSearchRetrieval extends ToolPrefix
   case object codeExecution extends ToolPrefix
   case object googleSearch extends ToolPrefix
+  case object urlContext extends ToolPrefix
 
   def values: Seq[ToolPrefix] = Seq(
     functionDeclarations,
     googleSearchRetrieval,
     codeExecution,
-    googleSearch
+    googleSearch,
+    urlContext
   )
 
   def of(value: String): ToolPrefix = values.find(_.toString() == value).getOrElse {

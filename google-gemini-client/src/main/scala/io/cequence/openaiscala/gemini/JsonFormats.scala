@@ -138,6 +138,7 @@ trait JsonFormats {
       case p: Tool.GoogleSearchRetrieval => toJsonWithPrefix(Json.toJson(p))
       case Tool.CodeExecution            => toJsonWithPrefix(Json.obj()) // empty object
       case Tool.GoogleSearch             => toJsonWithPrefix(Json.obj()) // empty object
+      case Tool.UrlContext               => toJsonWithPrefix(Json.obj()) // empty object
     }
   }
 
@@ -151,6 +152,7 @@ trait JsonFormats {
         case ToolPrefix.googleSearchRetrieval => prefixJson.as[Tool.GoogleSearchRetrieval]
         case ToolPrefix.codeExecution         => Tool.CodeExecution // no fields
         case ToolPrefix.googleSearch          => Tool.GoogleSearch // no fields
+        case ToolPrefix.urlContext            => Tool.UrlContext // no fields
         case _ => throw new OpenAIScalaClientException(s"Unknown tool type: $prefixFieldName")
       }
     }

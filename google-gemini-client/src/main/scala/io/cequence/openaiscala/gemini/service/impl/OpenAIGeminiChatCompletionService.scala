@@ -228,12 +228,17 @@ private[service] class OpenAIGeminiChatCompletionService(
       case _                         => Nil
     }
 
+    val urlContext: Seq[Tool] = settings.extra_params.get("url_context").toSeq.flatMap {
+      case enabled: Boolean if enabled => Tool.UrlContext :: Nil
+      case _                           => Nil
+    }
+
     // check for unsupported fields
     checkNotSupported(settings)
 
     GenerateContentSettings(
       model = settings.model,
-      tools = Some(search).filter(_.nonEmpty), // TODO other tools
+      tools = Some(search ++ urlContext).filter(_.nonEmpty),
       toolConfig = None, // TODO
       safetySettings = None,
       systemInstruction = systemMessage.map(toGeminiContent),
