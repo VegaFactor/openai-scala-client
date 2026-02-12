@@ -149,7 +149,7 @@ case class GroundingSupport(
  */
 case class Segment(
   partIndex: Option[Int],
-  startIndex: Int,
+  startIndex: Option[Int],
   endIndex: Int,
   text: String
 )
